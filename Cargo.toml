@@ -2,10 +2,12 @@
 name = "read_write_modbus"
 version = "0.1.0"
 edition = "2021"
-authors = ["Chrispine Tinega <hello@chrispinetinega.com>"]
 description = "A Rust project for reading and writing Modbus data."
 license = "MIT"
-repository = "https://github.com/yourusername/read_write_modbus"
+repository = "https://github.com/tinegachris/read_write_modbus"
+readme = "README.md"
+keywords = ["modbus", "rust", "tokio"]
+authors = ["Chrispine Tinega <hello@chrispinetinega.com>"]
 
 [dependencies]
 tokio = { version = "1.43.0", features = ["full", "server"] }
