@@ -1,0 +1,5 @@
+protocol = "TCP"       # Options: "TCP", "RTU"
+role = "Client"        # Options: "Client", "Server", "Master", "Slave"
+tcp_address = "127.0.0.1:502"  # Only for TCP
+serial_port = "/dev/ttyUSB0"   # Only for RTU
+baud_rate = 9600              # Only for RTU

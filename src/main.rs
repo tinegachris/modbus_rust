@@ -1,56 +1,71 @@
-pub mod modbus;
+mod modbus;
+mod config;
 
-use tokio::io::{self, AsyncReadExt, AsyncWriteExt};
-use tokio_serial::SerialStream;
-use tokio_modbus::client::rtu;
-use tokio_modbus::client::tcp;
-use tokio_modbus::prelude::*;
-use std::error::Error;
-
-#[derive(Debug)]
-enum ModbusProtocol {
-    RTU,
-    TCP,
-}
-
-async fn read_data(protocol: ModbusProtocol, address: &str, unit_id: u8, register: u16) -> Result<u16, Box<dyn Error>> {
-    match protocol {
-        ModbusProtocol::RTU => {
-            let tty_path = address;
-            let builder = tokio_serial::new(tty_path, 9600);
-            let port = SerialStream::open(&builder)?;
-            let mut ctx = rtu::connect_slave(port, unit_id).await?;
-            let response = ctx.read_holding_registers(register, 1).await?;
-            Ok(response[0])
-        }
-        ModbusProtocol::TCP => {
-            let socket_addr = address.parse()?;
-            let mut ctx = tcp::connect_slave(socket_addr, unit_id).await?;
-            let response = ctx.read_holding_registers(register, 1).await?;
-            Ok(response[0])
-        }
-    }
-}
+use modbus::common::{ModbusProtocol, ModbusRole};
+use config::load_config;
+use modbus::{tcp, rtu};
 
 #[tokio::main]
-async fn main() {
-    if let Err(err) = run().await {
-        eprintln!("Error: {}", err);
-    }
-}
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Load configuration
+    let config = load_config()?;
 
-async fn run() -> Result<(), Box<dyn Error>> {
-    // Example for RTU Communication
-    match read_data(ModbusProtocol::RTU, "/dev/ttyUSB0", 1, 100).await {
-        Ok(value) => println!("RTU: Register value is {}", value),
-        Err(err) => eprintln!("RTU Error: {}", err),
-    }
-
-    // Example for TCP Communication
-    match read_data(ModbusProtocol::TCP, "192.168.1.100:502", 1, 100).await {
-        Ok(value) => println!("TCP: Register value is {}", value),
-        Err(err) => eprintln!("TCP Error: {}", err),
+    // Handle based on protocol and role
+    match config.protocol {
+        ModbusProtocol::TCP => match config.role {
+            ModbusRole::Client => {
+                if let Some(address) = config.tcp_address {
+                    tcp::start_client(&address).await?;
+                } else {
+                    eprintln!("TCP Client requires an address.");
+                }
+            }
+            ModbusRole::Server => {
+                if let Some(address) = config.tcp_address {
+                    tcp::start_server(&address).await?;
+                } else {
+                    eprintln!("TCP Server requires an address.");
+                }
+            }
+        },
+        ModbusProtocol::RTU => match config.role {
+            ModbusRole::Master => {
+                if let Some(port) = config.serial_port {
+                    if let Some(baud_rate) = config.baud_rate {
+                        rtu::start_master(&port, baud_rate).await?;
+                    } else {
+                        eprintln!("RTU Master requires a baud rate.");
+                    }
+                } else {
+                    eprintln!("RTU Master requires a serial port.");
+                }
+            }
+            ModbusRole::Slave => {
+                if let Some(port) = config.serial_port {
+                    if let Some(baud_rate) = config.baud_rate {
+                        rtu::start_slave(&port, baud_rate).await?;
+                    } else {
+                        eprintln!("RTU Slave requires a baud rate.");
+                    }
+                } else {
+                    eprintln!("RTU Slave requires a serial port.");
+                }
+            }
+        },
     }
 
     Ok(())
 }
+
+// Configuration Loading:
+
+// The load_config function fetches user-defined configurations for protocol, role, and connection details.
+// Protocol and Role Handling:
+
+// The match statement handles the combination of protocol (TCP or RTU) and role (Client/Master or Server/Slave).
+// Error Handling:
+
+// Prints error messages if required configurations are missing (e.g., address, serial port, or baud rate).
+// Asynchronous Execution:
+
+// Uses tokio::main to enable async runtime for handling asynchronous operations.

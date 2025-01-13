@@ -1,11 +1,19 @@
 [package]
-name = "read_write_modbus_tcp_rtu"
+name = "read_write_modbus"
 version = "0.1.0"
 edition = "2021"
 authors = ["Chrispine Tinega <hello@chrispinetinega.com>"]
+description = "A Rust project for reading and writing Modbus data."
+license = "MIT"
+repository = "https://github.com/yourusername/read_write_modbus"
 
 [dependencies]
 tokio = { version = "1.43.0", features = ["full"] }
 tokio-modbus = "0.16.1"
+tokio-serial = "5.4.5"
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
+log = "0.4.22"
+env_logger = "0.11.6"
+serde = { version = "1.0.217", features = ["derive"] }
+toml = "0.8.19"
