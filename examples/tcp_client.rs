@@ -1,22 +1,24 @@
 use modbus_project::modbus::tcp::start_tcp_client;
 use std::env;
+use std::net::IpAddr;
 
 #[tokio::main]
 async fn main() {
     // Get the server IP and port from environment variables or default values
-    let server_ip = env::var("MODBUS_SERVER_IP").unwrap_or("127.0.0.1".to_string());
-    let server_port: u16 = env::var("MODBUS_SERVER_PORT")
-        .unwrap_or("502".to_string())
-        .parse()
+    let server_ip = env::var("MODBUS_SERVER_IP").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let server_port = env::var("MODBUS_SERVER_PORT")
+        .unwrap_or_else(|_| "502".to_string())
+        .parse::<u16>()
         .expect("Invalid server port");
 
     println!("Starting Modbus TCP Client...");
 
     if let Err(e) = start_tcp_client(&server_ip, server_port).await {
-        eprintln!("Error: {}", e);
+        eprintln!("Error starting Modbus TCP Client: {}", e);
+    } else {
+        println!("Modbus TCP Client started successfully.");
     }
 }
-
 
 // Explanation
 // 1. Environment Variables
