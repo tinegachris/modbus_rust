@@ -1,0 +1,20 @@
+# Ignore Rust build directory
+/target/
+
+# Ignore Cargo lock file
+Cargo.lock
+
+# Ignore compiled binaries
+*.rs.bk
+
+# Ignore backup files
+*.bak
+*.tmp
+
+# Ignore IDE specific files
+.idea/
+.vscode/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
