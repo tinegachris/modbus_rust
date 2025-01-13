@@ -8,7 +8,7 @@ license = "MIT"
 repository = "https://github.com/yourusername/read_write_modbus"
 
 [dependencies]
-tokio = { version = "1.43.0", features = ["full"] }
+tokio = { version = "1.43.0", features = ["full", "server"] }
 tokio-modbus = "0.16.1"
 tokio-serial = "5.4.5"
 tracing = "0.1.41"
