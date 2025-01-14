@@ -34,11 +34,11 @@ To use this library, add the following dependencies to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-tokio = "1.43.0"
-tokio-serial = "4.6.1"
-serde = "1.0.217"
-tracing-subscriber = "0.3.19"
-env_logger = "0.9.0"
+tokio = { version = "1", features = ["full"] }
+tokio-serial = "0.6"
+serde = { version = "1", features = ["derive"] }
+tracing-subscriber = "0.3"
+env_logger = "0.10"
 ```
 
 ## Examples
@@ -46,8 +46,8 @@ env_logger = "0.9.0"
 ### TCP Server
 
 ```rust
-use tokio_modbus::prelude::*;
-use tokio_modbus::server::tcp::Server;
+use tokio_modbus::server::tcp::{Server};
+use tokio_modbus::prelude::{Value, ModbusContext};
 
 #[tokio::main]
 async fn main() {
@@ -59,14 +59,16 @@ async fn main() {
 ### RTU Master
 
 ```rust
-use tokio_modbus::prelude::*;
+use tokio_modbus::prelude::{Value, ModbusContext};
 use tokio_serial::SerialStream;
+use tokio_modbus::rtu;
 
 #[tokio::main]
 async fn main() {
     let port = SerialStream::open("/dev/ttyUSB0").unwrap();
-    let mut ctx = rtu::connect(port).await.unwrap();
-    let response = ctx.read_holding_registers(0x1000, 7).await.unwrap();
+    let ctx = rtu::connect(port, 1).await.unwrap();
+    let response:Vec<Value> = ctx.read_holding_registers(0x0000, 7).await.unwrap();
+    //let response = ctx.read_holding_registers(0x1000, 7).await.unwrap();
     println!("Response: {:?}", response);
 }
 ```

@@ -10,14 +10,23 @@ pub async fn start_master(serial_port: &str, baud_rate: u32) -> Result<(), Box<d
         .open_native_async()
         .await?;
 
-    let mut ctx = rtu::connect(port).await?;
+    let ctx = rtu::connect(port).await?;
     println!("Connected to Modbus RTU slave on {}", serial_port);
 
-    let response = ctx.read_holding_registers(0, 10).await?;
-    println!("Read holding registers: {:?}", response);
+    let mut ctx = ctx;
 
-    ctx.write_single_register(0, 42).await?;
-    println!("Wrote 42 to register 0");
+    loop {
+        match ctx.read_holding_registers(0, 10).await {
+            Ok(response) => println!("Read holding registers: {:?}", response),
+            Err(e) => println!("Error reading holding registers: {}", e),
+        }
+        tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
+        match ctx.write_single_register(0, 42).await {
+            Ok(_) => {},
+            Err(e) => println!("Error writing to register 0: {}", e),
+        }
+        println!("Wrote 42 to register 0");
+    }
 
     Ok(())
 }

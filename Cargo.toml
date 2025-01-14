@@ -13,6 +13,7 @@ authors = ["Chrispine Tinega <hello@chrispinetinega.com>"]
 tokio = { version = "1.43.0", features = ["full", "server"] }
 tokio-modbus = "0.16.1"
 tokio-serial = "5.4.5"
+modbus = "1.1.0"
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
 log = "0.4.22"

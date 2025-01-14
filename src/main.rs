@@ -3,9 +3,11 @@ mod config;
 
 use modbus::common::{ModbusProtocol, ModbusRole};
 use config::load_config;
+use config::Config;
 use modbus::{tcp, rtu};
+use tokio;
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load configuration
     let config = load_config()?;
@@ -22,14 +24,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn handle_tcp(config: Config) -> Result<(), Box<dyn std::error::Error>> {
     match config.role {
         ModbusRole::Client => {
-            if let Some(address) = config.tcp_address {
+            if let Some(address) = config.tcp_client_address {
                 tcp::start_client(&address).await?;
             } else {
                 eprintln!("TCP Client requires an address.");
             }
         }
         ModbusRole::Server => {
-            if let Some(address) = config.tcp_address {
+            if let Some(address) = config.tcp_server_address {
                 tcp::start_server(&address).await?;
             } else {
                 eprintln!("TCP Server requires an address.");

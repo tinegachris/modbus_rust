@@ -16,8 +16,17 @@ pub struct Config {
 
 /// Load the configuration from a file or environment
 pub fn load_config() -> Result<Config, Box<dyn Error>> {
-    let config_path = Path::new("config.toml");
-    let config_content = fs::read_to_string(config_path)?;
-    let config: Config = toml::from_str(&config_content)?;
+    let config_path = Path::new("./config.toml");
+    let config_content = match fs::read_to_string(config_path) {
+        Ok(content) => content,
+        Err(e) => {
+            eprintln!("Error reading config file: {}", e);
+            return Err(Box::new(e));
+        }
+    };
+    let config: Config = match toml::from_str(&config_content) {
+        Ok(config) => config,
+        Err(e) => return Err(Box::new(e)),
+    };
     Ok(config)
 }

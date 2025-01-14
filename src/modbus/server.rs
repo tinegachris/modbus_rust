@@ -7,7 +7,7 @@ use tokio::time::Duration;
 pub async fn start_tcp_server(server_ip: &str, server_port: u16) -> Result<(), Box<dyn Error>> {
     // Create and configure Modbus TCP server
     let mut server = ModbusTcpServer::new(format!("{}:{}", server_ip, server_port)).await?;
-    server.add_holding_registers(0, 10)?;
+    server.add_holding_registers(0, vec![0; 10])?;
 
     // Run the server
     println!("Modbus TCP Server is running...");
@@ -20,7 +20,7 @@ pub async fn start_tcp_server(server_ip: &str, server_port: u16) -> Result<(), B
 pub async fn start_rtu_server(serial_port: &str, baud_rate: u32) -> Result<(), Box<dyn Error>> {
     // Create and configure Modbus RTU server
     let mut server = ModbusRtuServer::new(serial_port, baud_rate).await?;
-    server.add_holding_registers(0, 10)?;
+    server.add_holding_registers(0, vec![0; 10])?;
 
     // Run the server
     println!("Modbus RTU Server is running...");
